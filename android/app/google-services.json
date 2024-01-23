@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "434147905270",
+    "project_id": "flutter-syncc-chat",
+    "storage_bucket": "flutter-syncc-chat.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:434147905270:android:40460c7670a2e87ccf26d7",
+        "android_client_info": {
+          "package_name": "com.example.syncc_chat_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1OeG_2F6oHT2P0BvVW_YWzcQTrfpyI2o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
