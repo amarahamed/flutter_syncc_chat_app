@@ -29,9 +29,25 @@ class _AuthScreenState extends State<AuthScreen> {
 
   final _form = GlobalKey<FormState>();
 
+  // get all userData to check if other users have the same username
+  // *username here is unique
+  Future<bool> checkUsernameAvailable(String username) async {
+    QuerySnapshot querySnapshot =
+        await FirebaseFirestore.instance.collection('usernames').get();
+
+    final List allData = querySnapshot.docs.map((doc) => doc.data()).toList();
+
+    for (var name in allData) {
+      if (name['username'].toString().toLowerCase() == username.toLowerCase()) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   void _submitForm() async {
     if (_form.currentState == null) {
-      print("NULL");
       return;
     }
 
@@ -58,6 +74,16 @@ class _AuthScreenState extends State<AuthScreen> {
         }
       } else {
         // register user
+        // check if the username already exist in the db
+        if (!await checkUsernameAvailable(_validatedUsername)) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).clearSnackBars();
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Username already exist')));
+          }
+          return;
+        }
+
         final userCredential = await _auth.registerWithEmailPwd(
             _validatedEmail, _validatedPassword);
 
@@ -79,15 +105,23 @@ class _AuthScreenState extends State<AuthScreen> {
           "username": _validatedUsername,
           "pfp_url": pictureUrl,
         });
+
+        // add username to the username list collection
+        await FirebaseFirestore.instance
+            .collection('usernames')
+            .doc()
+            .set({"username": _validatedUsername});
       }
     } on FirebaseAuthException catch (err) {
       setState(() {
         _isAuthenticating = false;
       });
       if (err.code == 'email-already-in-use') {}
-      ScaffoldMessenger.of(context).clearSnackBars();
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Authentication Failed')));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Authentication Failed')));
+      }
     }
   }
 
