@@ -31,6 +31,11 @@ class App extends StatelessWidget {
           primaryContainer: const Color(0xFF303030),
           secondaryContainer: const Color(0xFF192621),
         ),
+        textTheme: const TextTheme(
+          bodySmall: TextStyle(fontFamily: 'Montserrat'),
+          bodyMedium: TextStyle(fontFamily: 'Montserrat'),
+          bodyLarge: TextStyle(fontFamily: 'Montserrat'),
+        ),
       ),
       home: StreamBuilder(
           stream: FirebaseAuth.instance.authStateChanges(),
