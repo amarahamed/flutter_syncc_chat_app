@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:syncc_chat_app/screens/chat_screen.dart';
+import 'package:syncc_chat_app/screens/past_chat_screen.dart';
 import 'package:syncc_chat_app/screens/auth_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:syncc_chat_app/shared/loading_screen.dart';
@@ -45,7 +45,7 @@ class App extends StatelessWidget {
             }
 
             if (snapshot.hasData) {
-              return const ChatScreen();
+              return const PastChatsScreen();
             } else {
               return const AuthScreen();
             }

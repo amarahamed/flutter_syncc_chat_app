@@ -1,10 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:syncc_chat_app/models/receiver.dart';
+import 'package:syncc_chat_app/services/chats.dart';
 import 'package:syncc_chat_app/shared/shared_widgets.dart';
 
 class NewMessage extends StatefulWidget {
-  const NewMessage({super.key});
+  const NewMessage({super.key, required this.receiverData});
+
+  final ReceiverData receiverData;
 
   @override
   State<NewMessage> createState() => _NewMessageState();
@@ -35,14 +39,11 @@ class _NewMessageState extends State<NewMessage> {
         .doc(sentUser.uid)
         .get();
 
-    // send message to other user
-    FirebaseFirestore.instance.collection('chats').add({
-      'text': message,
-      'sentTime': Timestamp.now(),
-      'sentUser': sentUser.uid,
-      'senderUsername': senderData.data()!['username'],
-      'senderPfp': senderData.data()!['pfp_url'],
-    });
+    await ChatService().sendChat(
+        receiverData: widget.receiverData,
+        message: message,
+        senderData: senderData.data(),
+        sentUser: sentUser.uid);
   }
 
   @override
