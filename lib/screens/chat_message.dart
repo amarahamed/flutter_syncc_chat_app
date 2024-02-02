@@ -4,7 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncc_chat_app/models/receiver.dart';
-import 'package:syncc_chat_app/services/quick_db_lockups.dart';
+import 'package:syncc_chat_app/services/helper.dart';
 
 class ChatMessages extends StatefulWidget {
   const ChatMessages({super.key, required this.receiverData});

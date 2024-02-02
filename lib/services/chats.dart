@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:syncc_chat_app/models/receiver.dart';
-import 'package:syncc_chat_app/services/quick_db_lockups.dart';
+import 'package:syncc_chat_app/services/helper.dart';
 
 class ChatService {
   Future<void> sendChat(
@@ -28,5 +28,12 @@ class ChatService {
       'receiverUsername': receiverData.username,
       'receiverPfp': receiverData.pfpUrl,
     });
+// add the receiver user id as a previous chat
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(sentUser)
+        .collection('chat')
+        .doc(receiverData.uid)
+        .set({});
   }
 }

@@ -19,8 +19,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void initState() {
-    // receiverData = widget.receiverData;
-    print(widget.receiverData.username);
     super.initState();
   }
 

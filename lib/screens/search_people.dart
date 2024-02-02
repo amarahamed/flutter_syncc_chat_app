@@ -3,7 +3,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:syncc_chat_app/models/receiver.dart';
 import 'package:syncc_chat_app/screens/chat_screen.dart';
 import 'package:syncc_chat_app/services/authentication.dart';
-import 'package:syncc_chat_app/services/quick_db_lockups.dart';
+import 'package:syncc_chat_app/services/helper.dart';
 import 'package:syncc_chat_app/shared/shared_widgets.dart';
 
 class PeopleLookUpScreen extends StatefulWidget {
@@ -87,7 +87,6 @@ class _PeopleLookUpScreenState extends State<PeopleLookUpScreen> {
                 child: InkWell(
                   onTap: () {
                     if (receiverData != null) {
-                      print("helllo");
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
                         return ChatScreen(receiverData: receiverData!);

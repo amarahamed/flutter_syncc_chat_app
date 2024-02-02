@@ -21,7 +21,7 @@ class Helper {
     }
   }
 
-  Future<String?> checkChatDocument(
+  Future<String> checkChatDocument(
       {required String senderId, required String receiverId}) async {
     var document = await FirebaseFirestore.instance
         .collection('chats')
