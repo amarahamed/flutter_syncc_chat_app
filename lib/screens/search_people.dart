@@ -55,7 +55,7 @@ class _PeopleLookUpScreenState extends State<PeopleLookUpScreen> {
         actions: [
           IconButton(
               onPressed: () async {
-                await Authentication().signOutUser();
+                await Authentication().signOutUser(context);
               },
               icon: const Icon(Icons.exit_to_app_rounded)),
         ],

@@ -6,6 +6,9 @@ import 'package:intl/intl.dart';
 import 'package:syncc_chat_app/models/receiver.dart';
 import 'package:syncc_chat_app/services/helper.dart';
 
+bool isTodayLabel = false;
+bool isYesterdayLabel = false;
+
 class ChatMessages extends StatefulWidget {
   const ChatMessages({super.key, required this.receiverData});
 
@@ -23,18 +26,18 @@ class _ChatMessagesState extends State<ChatMessages> {
   void initState() {
     setState(() {
       currentUser = FirebaseAuth.instance.currentUser!.uid;
-      setChatDocument();
+      // setChatDocument();
     });
     super.initState();
   }
 
-  void setChatDocument() async {
-    var chats = await Helper().checkChatDocument(
-        senderId: currentUser!, receiverId: widget.receiverData.uid);
-    setState(() {
-      chatDocument = chats;
-    });
-  }
+  // void setChatDocument() async {
+  //   var chats = await Helper().checkChatDocument(
+  //       senderId: currentUser!, receiverId: widget.receiverData.uid);
+  //   setState(() {
+  //     chatDocument = chats;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -45,11 +48,12 @@ class _ChatMessagesState extends State<ChatMessages> {
         Expanded(
           child: StreamBuilder(
               stream: FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(currentUser)
                   .collection('chats')
-                  .doc(chatDocument)
+                  .doc(widget.receiverData.uid)
                   .collection('messages')
                   .snapshots(),
-              // stream: FirebaseFirestore.instance.collection('chats').where(FirebaseAuth.instance.currentUser!.uid,isEqualTo: FirebaseAuth.instance.currentUser!.uid).snapshots(),
               builder: (context, snapshots) {
                 if (snapshots.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -74,6 +78,7 @@ class _ChatMessagesState extends State<ChatMessages> {
                   itemBuilder: (BuildContext context, int index) {
                     DateTime time =
                         DateTime.parse(messages[index].id.toString());
+
                     return MessageBubble(
                       message: messages[index].data()['text'],
                       dateTime: dateFormat.format(time),
@@ -81,6 +86,7 @@ class _ChatMessagesState extends State<ChatMessages> {
                           currentUser! == messages[index].data()['sentUser']
                               ? true
                               : false,
+                      time: time,
                     );
                   },
                   itemCount: messages.length,
@@ -98,48 +104,64 @@ class MessageBubble extends StatelessWidget {
     required this.message,
     required this.dateTime,
     required this.isPrimaryUser,
+    required this.time,
   });
 
   final String message;
   final String dateTime;
   final bool isPrimaryUser;
+  final DateTime time;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      constraints: const BoxConstraints(
-        maxWidth: 100,
-      ),
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 10),
-      decoration: BoxDecoration(
-        color: isPrimaryUser ? Colors.grey[700] : Colors.grey[800],
-        borderRadius: BorderRadius.only(
-          topLeft: const Radius.circular(15),
-          topRight: const Radius.circular(15),
-          bottomLeft: isPrimaryUser
-              ? const Radius.circular(15)
-              : const Radius.circular(0),
-          bottomRight: isPrimaryUser
-              ? const Radius.circular(0)
-              : const Radius.circular(15),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          constraints: const BoxConstraints(
+            maxWidth: 100,
+          ),
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 10),
+          decoration: BoxDecoration(
+            color: isPrimaryUser ? Colors.grey[700] : Colors.grey[800],
+            borderRadius: BorderRadius.only(
+              topLeft: const Radius.circular(15),
+              topRight: const Radius.circular(15),
+              bottomLeft: isPrimaryUser
+                  ? const Radius.circular(15)
+                  : const Radius.circular(0),
+              bottomRight: isPrimaryUser
+                  ? const Radius.circular(0)
+                  : const Radius.circular(15),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(message),
+              Text(dateTime),
+            ],
+          ),
         ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(message),
-          Text(dateTime),
-        ],
-      ),
+      ],
     );
   }
 }
-
-/*
-*
- return ListTile(
-                      title: Text(messages[index].data()['text']),
-                      trailing: Text(dateFormat.format(time)),
-                    );
-* */
+//
+// Text? dateBubble(DateTime time) {
+//   DateFormat dateFormat = DateFormat('EEEE, MMM d');
+//   String day = '';
+//   if (DateTime.now().difference(time).inDays == 0 && !isTodayLabel) {
+//     day = "Today";
+//     isTodayLabel = true;
+//   } else if (DateTime.now().difference(time).inDays == 1 && !isYesterdayLabel) {
+//     day = "Yesterday";
+//     isYesterdayLabel = true;
+//   } else {
+//     day = dateFormat.format(time);
+//   }
+//
+//   return day == null ? Text('') : Text(day);
+// }

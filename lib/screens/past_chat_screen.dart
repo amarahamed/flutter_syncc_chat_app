@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:syncc_chat_app/models/receiver.dart';
 import 'package:syncc_chat_app/screens/chat_screen.dart';
-import 'package:async/async.dart';
+import 'package:syncc_chat_app/screens/search_people.dart';
 import 'package:syncc_chat_app/services/authentication.dart';
 import 'package:syncc_chat_app/services/helper.dart';
 
@@ -15,87 +15,28 @@ class PastChatsScreen extends StatefulWidget {
 }
 
 class _PastChatsScreenState extends State<PastChatsScreen> {
-  List<dynamic> allChatData = [];
+  final _currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
-  // Future<List> checkPastChats() async {
-  //   String currentUserId = FirebaseAuth.instance.currentUser!.uid;
-  //   List<Stream<QuerySnapshot<Map<String, dynamic>>>> snapshots = [];
-  //
-  //   // get the past chat list from the user collection
-  //   var previousChatsPeople = await FirebaseFirestore.instance
-  //       .collection('users')
-  //       .doc(currentUserId)
-  //       .collection('chat')
-  //       .get();
-  //
-  //   final List previousChatsData =
-  //       previousChatsPeople.docs.map((doc) => doc).toList();
-  //
-  //   for (var pastChatUserId in previousChatsData) {
-  //     var listMessages = await FirebaseFirestore.instance
-  //         .collection('chats')
-  //         .doc('$currentUserId-${pastChatUserId.id}')
-  //         .collection('messages')
-  //         .get();
-  //
-  //     Stream<QuerySnapshot<Map<String, dynamic>>> x = FirebaseFirestore.instance
-  //         .collection('chats')
-  //         .doc('$currentUserId-${pastChatUserId.id}')
-  //         .collection('messages')
-  //         .snapshots();
-  //
-  //     snapshots.add(x);
-  //
-  //     // for (var element in listMessages.docs) {
-  //     //   print("-----> ${element.data()}");
-  //     // }
-  //
-  //     // for (var element in listMessages.docs) {
-  //     //   setState(() {
-  //     //     allChatData.add(element.data());
-  //     //   });
-  //     // }
-  //   }
-  //
-  //   return snapshots;
+  // void getPastChats() {
+  //   FirebaseFirestore.instance.collection('users').doc(_currentUserId).collection('chats').snapshots();
   // }
-//Future<List<QuerySnapshot<Object>>>
-
-  void getSnapshots() async {
-    List<Stream<QuerySnapshot<Map<String, dynamic>>>> streams = [];
-
-    String currentUserId = FirebaseAuth.instance.currentUser!.uid;
-    var previousChatsPeople = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUserId)
-        .collection('chat')
-        .get();
-    print("###");
-    final List previousChatsData =
-        previousChatsPeople.docs.map((doc) => doc).toList();
-    // loop through previousChatData and the element.id will give the id
-
-    for (var element in previousChatsData) {
-      // print(element.id);
-      var chatDocumentId = await Helper()
-          .checkChatDocument(senderId: currentUserId, receiverId: element.id);
-      print(chatDocumentId);
-
-      streams.add(FirebaseFirestore.instance
-          .collection('chats')
-          .doc(chatDocumentId)
-          .collection('messages')
-          .snapshots());
-    }
-  }
-
-  late Future<List> futureData;
 
   @override
   void initState() {
-    getSnapshots();
     super.initState();
     // futureData = checkPastChats();
+  }
+
+  Future<List> userChatData(List<QueryDocumentSnapshot> chats) async {
+    List peopleChatData = [];
+    for (var element in chats) {
+      peopleChatData.add(await FirebaseFirestore.instance
+          .collection('users')
+          .doc(element.id)
+          .get());
+    }
+
+    return peopleChatData;
   }
 
   @override
@@ -109,10 +50,9 @@ class _PastChatsScreenState extends State<PastChatsScreen> {
           color: Theme.of(context).colorScheme.secondary,
         ),
         onPressed: () {
-          getSnapshots();
-          // Navigator.push(context, MaterialPageRoute(builder: (context) {
-          //   return const PeopleLookUpScreen();
-          // }));
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return const PeopleLookUpScreen();
+          }));
         },
       ),
       appBar: AppBar(
@@ -121,49 +61,115 @@ class _PastChatsScreenState extends State<PastChatsScreen> {
         actions: [
           IconButton(
             onPressed: () async {
-              await Authentication().signOutUser();
+              await Authentication().signOutUser(context);
             },
             icon: const Icon(Icons.exit_to_app_rounded),
           ),
         ],
       ),
-      body: allChatData.isEmpty
-          ? const Center(
-              child: Text('No Chats'),
-            )
-          : StreamBuilder(
-              stream: FirebaseFirestore.instance.collection('chats').doc(),
-              builder: (context, snapshot) {
-                return ListView.builder(
-                  itemBuilder: (BuildContext context, int index) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      child: ListTile(
-                        title: Text(allChatData[index]['receiverUsername']),
-                        leading: CircleAvatar(
-                          foregroundImage:
-                              NetworkImage(allChatData[index]['receiverPfp']),
-                          radius: 50,
-                        ),
-                        onTap: () {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) {
-                            print("----------->");
-                            print(allChatData[index]);
-                            return ChatScreen(
-                                receiverData: ReceiverData(
-                                    uid: allChatData[index]['receiver'],
-                                    pfpUrl: allChatData[index]['receiverPfp'],
-                                    username: allChatData[index]
-                                        ['receiverUsername']));
-                          }));
-                        },
-                      ),
+      body: StreamBuilder(
+          stream: FirebaseFirestore.instance
+              .collection('users')
+              .doc(_currentUserId)
+              .collection('chatted_people')
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return const Center(
+                child: Text('No chats!!'),
+              );
+            }
+
+            if (snapshot.hasError) {
+              return const Center(
+                child: Text('something went wrong... : ('),
+              );
+            }
+
+            var chats = snapshot.data!.docs;
+
+            return FutureBuilder(
+                future: userChatData(chats),
+                builder: (context, userDataSnapshots) {
+                  if (userDataSnapshots.connectionState ==
+                      ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (userDataSnapshots.hasError) {
+                    return const Center(
+                      child: Text('Failed to fetch user chat data'),
                     );
-                  },
-                  itemCount: allChatData.length,
-                );
-              }),
+                  }
+
+                  var pastChatUsers = userDataSnapshots.data;
+
+                  return ListView.builder(
+                    itemBuilder: (BuildContext context, int index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: ListTile(
+                          title: Text(pastChatUsers![index]['username']),
+                          // subtitle: Text(]),
+                          leading: CircleAvatar(
+                            foregroundImage:
+                                NetworkImage(pastChatUsers[index]['pfp_url']),
+                            radius: 50,
+                          ),
+                          onTap: () {
+                            Navigator.push(context,
+                                MaterialPageRoute(builder: (cxt) {
+                              return ChatScreen(
+                                  receiverData: ReceiverData(
+                                      uid: chats[index].id,
+                                      pfpUrl: pastChatUsers[index]['pfp_url'],
+                                      username: pastChatUsers[index]
+                                          ['username']));
+                            }));
+                          },
+                        ),
+                      );
+                    },
+                    itemCount: chats.length,
+                  );
+                });
+          }),
     );
   }
 }
+
+/*
+ListView.builder(
+            itemBuilder: (BuildContext context, int index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: ListTile(
+                  title: Text(allChatData[index]['receiverUsername']),
+                  leading: CircleAvatar(
+                    foregroundImage:
+                        NetworkImage(allChatData[index]['receiverPfp']),
+                    radius: 50,
+                  ),
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      print("----------->");
+                      print(allChatData[index]);
+                      return ChatScreen(
+                          receiverData: ReceiverData(
+                              uid: allChatData[index]['receiver'],
+                              pfpUrl: allChatData[index]['receiverPfp'],
+                              username: allChatData[index]
+                                  ['receiverUsername']));
+                    }));
+                  },
+                ),
+              );
+            },
+            itemCount: allChatData.length,
+          ),
+* */

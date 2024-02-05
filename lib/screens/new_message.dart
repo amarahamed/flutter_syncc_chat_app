@@ -39,6 +39,7 @@ class _NewMessageState extends State<NewMessage> {
         .collection('users')
         .doc(sentUser.uid)
         .get();
+    // original user
     await ChatService().sendChat(
         receiverData: widget.receiverData,
         message: message,
