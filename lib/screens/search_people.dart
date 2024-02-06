@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:syncc_chat_app/models/receiver.dart';
@@ -22,6 +24,15 @@ class _PeopleLookUpScreenState extends State<PeopleLookUpScreen> {
 
   void _submitInput() async {
     // await _searchPeople(_searchController.text);
+    var currentUser = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get();
+
+    if (_searchController.text == currentUser.data()!['username']) {
+      return;
+    }
+
     setState(() {
       loading = true;
     });

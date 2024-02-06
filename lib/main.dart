@@ -53,3 +53,12 @@ class App extends StatelessWidget {
     );
   }
 }
+
+/*ColorScheme.fromSeed(
+          seedColor: const Color(0xFF101815),
+          brightness: Brightness.dark,
+          primary: const Color(0xFF101815),
+          secondary: const Color(0xFFF4F4F4),
+          primaryContainer: const Color(0xFF303030),
+          secondaryContainer: const Color(0xFF192621),
+        )*/

@@ -57,12 +57,23 @@ class _NewMessageState extends State<NewMessage> {
           textCapitalization: TextCapitalization.sentences,
           autocorrect: true,
           enableSuggestions: true,
-          decoration:
-              primaryInputDecoration.copyWith(labelText: 'Type message'),
+          onSubmitted: (value) {
+            _submitMessage;
+          },
+          decoration: primaryInputDecoration.copyWith(
+            labelText: 'Type message',
+          ),
         )),
-        IconButton(
-          onPressed: _submitMessage,
-          icon: const Icon(Icons.send),
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 6),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
+            borderRadius: BorderRadius.circular(25),
+          ),
+          child: IconButton(
+            onPressed: _submitMessage,
+            icon: const Icon(Icons.arrow_upward_rounded),
+          ),
         ),
       ],
     );

@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:syncc_chat_app/models/receiver.dart';
 import 'package:syncc_chat_app/screens/chat_message.dart';
@@ -25,7 +24,8 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.primary,
+      backgroundColor:
+          Colors.transparent, //Theme.of(context).colorScheme.primary
       appBar: AppBar(
         title: Row(
           children: [
@@ -49,10 +49,16 @@ class _ChatScreenState extends State<ChatScreen> {
               icon: const Icon(Icons.exit_to_app_rounded)),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
+      body: DecoratedBox(
+        decoration: const BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('assets/img/background.png'),
+            fit: BoxFit.fill,
+          ),
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Show the current messages for this chat
             Expanded(
@@ -60,8 +66,11 @@ class _ChatScreenState extends State<ChatScreen> {
                 receiverData: widget.receiverData,
               ),
             ),
-            NewMessage(
-              receiverData: widget.receiverData,
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
+              child: NewMessage(
+                receiverData: widget.receiverData,
+              ),
             ),
           ],
         ),

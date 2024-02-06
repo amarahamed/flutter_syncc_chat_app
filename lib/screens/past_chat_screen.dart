@@ -5,7 +5,6 @@ import 'package:syncc_chat_app/models/receiver.dart';
 import 'package:syncc_chat_app/screens/chat_screen.dart';
 import 'package:syncc_chat_app/screens/search_people.dart';
 import 'package:syncc_chat_app/services/authentication.dart';
-import 'package:syncc_chat_app/services/helper.dart';
 
 class PastChatsScreen extends StatefulWidget {
   const PastChatsScreen({super.key});
@@ -17,14 +16,9 @@ class PastChatsScreen extends StatefulWidget {
 class _PastChatsScreenState extends State<PastChatsScreen> {
   final _currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
-  // void getPastChats() {
-  //   FirebaseFirestore.instance.collection('users').doc(_currentUserId).collection('chats').snapshots();
-  // }
-
   @override
   void initState() {
     super.initState();
-    // futureData = checkPastChats();
   }
 
   Future<List> userChatData(List<QueryDocumentSnapshot> chats) async {
@@ -111,10 +105,15 @@ class _PastChatsScreenState extends State<PastChatsScreen> {
                   return ListView.builder(
                     itemBuilder: (BuildContext context, int index) {
                       return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
                         child: ListTile(
-                          title: Text(pastChatUsers![index]['username']),
-                          // subtitle: Text(]),
+                          title: Text(
+                            "${pastChatUsers![index]['username'].toString().substring(0, 1).toUpperCase()}${pastChatUsers[index]['username'].toString().substring(1)}",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
                           leading: CircleAvatar(
                             foregroundImage:
                                 NetworkImage(pastChatUsers[index]['pfp_url']),
@@ -141,35 +140,3 @@ class _PastChatsScreenState extends State<PastChatsScreen> {
     );
   }
 }
-
-/*
-ListView.builder(
-            itemBuilder: (BuildContext context, int index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: ListTile(
-                  title: Text(allChatData[index]['receiverUsername']),
-                  leading: CircleAvatar(
-                    foregroundImage:
-                        NetworkImage(allChatData[index]['receiverPfp']),
-                    radius: 50,
-                  ),
-                  onTap: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      print("----------->");
-                      print(allChatData[index]);
-                      return ChatScreen(
-                          receiverData: ReceiverData(
-                              uid: allChatData[index]['receiver'],
-                              pfpUrl: allChatData[index]['receiverPfp'],
-                              username: allChatData[index]
-                                  ['receiverUsername']));
-                    }));
-                  },
-                ),
-              );
-            },
-            itemCount: allChatData.length,
-          ),
-* */
