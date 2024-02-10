@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:syncc_chat_app/services/authentication.dart';
+import 'package:syncc_chat_app/services/helper.dart';
 import 'package:syncc_chat_app/shared/shared_widgets.dart';
 import 'package:syncc_chat_app/shared/user_image_picker.dart';
 
@@ -102,7 +103,7 @@ class _AuthScreenState extends State<AuthScreen> {
             .doc(userCredential.user!.uid)
             .set({
           "email": _validatedEmail,
-          "username": _validatedUsername,
+          "username": Helper().stringCapitalize(_validatedUsername),
           "pfp_url": pictureUrl,
         });
 
@@ -110,7 +111,7 @@ class _AuthScreenState extends State<AuthScreen> {
         await FirebaseFirestore.instance
             .collection('usernames')
             .doc()
-            .set({"username": _validatedUsername});
+            .set({"username": Helper().stringCapitalize(_validatedUsername)});
       }
     } on FirebaseAuthException catch (err) {
       setState(() {

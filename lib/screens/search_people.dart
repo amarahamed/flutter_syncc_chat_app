@@ -24,14 +24,6 @@ class _PeopleLookUpScreenState extends State<PeopleLookUpScreen> {
 
   void _submitInput() async {
     // await _searchPeople(_searchController.text);
-    var currentUser = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .get();
-
-    if (_searchController.text == currentUser.data()!['username']) {
-      return;
-    }
 
     setState(() {
       loading = true;
@@ -80,6 +72,33 @@ class _PeopleLookUpScreenState extends State<PeopleLookUpScreen> {
               controller: _searchController,
               onSubmitted: (value) {
                 _submitInput();
+              },
+              onChanged: (value) async {
+                // // await _searchPeople(_searchController.text);
+                // var currentUser = await FirebaseFirestore.instance
+                //     .collection('users')
+                //     .doc(FirebaseAuth.instance.currentUser!.uid)
+                //     .get();
+                //
+                // if (_searchController.text == currentUser.data()!['username']) {
+                //   return;
+                // }
+                //
+                // setState(() {
+                //   loading = true;
+                // });
+                // ReceiverData? fetchData =
+                //     await Helper().searchPeople(_searchController.text);
+                // setState(() {
+                //   loading = false;
+                //   if (fetchData == null) {
+                //     showUserNotFoundText = true;
+                //     receiverData = null;
+                //   } else {
+                //     showUserNotFoundText = false;
+                //     receiverData = fetchData;
+                //   }
+                // });
               },
               decoration: primaryInputDecoration.copyWith(
                 labelText: 'Search people',
