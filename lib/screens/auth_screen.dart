@@ -1,7 +1,7 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:syncc_chat_app/services/authentication.dart';
@@ -73,6 +73,9 @@ class _AuthScreenState extends State<AuthScreen> {
         if (userCredential.user == null) {
           return;
         }
+        // assign token when logged in
+        Authentication()
+            .assignFCMToken(await FirebaseMessaging.instance.getToken());
       } else {
         // register user
         // check if the username already exist in the db
@@ -98,6 +101,8 @@ class _AuthScreenState extends State<AuthScreen> {
         await storageRef.putFile(_selectedPicture!);
         final pictureUrl = await storageRef.getDownloadURL();
 
+        final fcmToken = await FirebaseMessaging.instance.getToken();
+
         await FirebaseFirestore.instance
             .collection('users')
             .doc(userCredential.user!.uid)
@@ -105,6 +110,7 @@ class _AuthScreenState extends State<AuthScreen> {
           "email": _validatedEmail,
           "username": Helper().stringCapitalize(_validatedUsername),
           "pfp_url": pictureUrl,
+          "fcm_token": fcmToken,
         });
 
         // add username to the username list collection

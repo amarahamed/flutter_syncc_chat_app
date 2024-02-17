@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:syncc_chat_app/models/receiver.dart';
-import 'package:syncc_chat_app/services/helper.dart';
 
 class ChatService {
   Future<void> sendChat(
@@ -9,10 +7,6 @@ class ChatService {
       required ReceiverData receiverData,
       required String message,
       dynamic senderData}) async {
-    // var chatDocument = await Helper().checkChatDocument(
-    //     senderId: FirebaseAuth.instance.currentUser!.uid,
-    //     receiverId: receiverData.uid);
-
     FirebaseFirestore.instance
         .collection('users')
         .doc(sentUser)
@@ -29,6 +23,7 @@ class ChatService {
       'receiver': receiverData.uid,
       'receiverUsername': receiverData.username,
       'receiverPfp': receiverData.pfpUrl,
+      'fcm_token': receiverData.fcmToken,
     });
 
     // create a copy for the receiver in their collection

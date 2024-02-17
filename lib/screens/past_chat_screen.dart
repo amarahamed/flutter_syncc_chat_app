@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:syncc_chat_app/models/receiver.dart';
 import 'package:syncc_chat_app/screens/chat_screen.dart';
@@ -16,9 +17,30 @@ class PastChatsScreen extends StatefulWidget {
 class _PastChatsScreenState extends State<PastChatsScreen> {
   final _currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
+  void setupPushNotification() async {
+    final fcm = FirebaseMessaging.instance;
+
+    NotificationSettings permission = await fcm.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+
+    if (permission.authorizationStatus == AuthorizationStatus.authorized) {
+      print(await fcm.getToken());
+    } else {
+      print("permission denied or not determined");
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    setupPushNotification();
   }
 
   Future<List> userChatData(List<QueryDocumentSnapshot> chats) async {
@@ -50,7 +72,7 @@ class _PastChatsScreenState extends State<PastChatsScreen> {
         },
       ),
       appBar: AppBar(
-        title: const Text('Syncc'),
+        title: const Text('Chats'),
         centerTitle: true,
         actions: [
           IconButton(
@@ -105,10 +127,10 @@ class _PastChatsScreenState extends State<PastChatsScreen> {
                   return ListView.builder(
                     itemBuilder: (BuildContext context, int index) {
                       return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        padding: const EdgeInsets.symmetric(vertical: 18),
                         child: ListTile(
                           title: Text(
-                            "${pastChatUsers![index]['username'].toString().substring(0, 1).toUpperCase()}${pastChatUsers[index]['username'].toString().substring(1)}",
+                            "${pastChatUsers![index]['username']}",
                             style: const TextStyle(
                               fontWeight: FontWeight.w600,
                               letterSpacing: 1.2,
@@ -123,11 +145,13 @@ class _PastChatsScreenState extends State<PastChatsScreen> {
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (cxt) {
                               return ChatScreen(
-                                  receiverData: ReceiverData(
-                                      uid: chats[index].id,
-                                      pfpUrl: pastChatUsers[index]['pfp_url'],
-                                      username: pastChatUsers[index]
-                                          ['username']));
+                                receiverData: ReceiverData(
+                                    uid: chats[index].id,
+                                    pfpUrl: pastChatUsers[index]['pfp_url'],
+                                    username: pastChatUsers[index]['username'],
+                                    fcmToken: pastChatUsers[index]
+                                        ['fcm_token']),
+                              );
                             }));
                           },
                         ),

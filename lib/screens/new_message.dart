@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:syncc_chat_app/models/receiver.dart';
 import 'package:syncc_chat_app/services/chats.dart';
-import 'package:syncc_chat_app/services/helper.dart';
 import 'package:syncc_chat_app/shared/shared_widgets.dart';
 
 class NewMessage extends StatefulWidget {
@@ -30,7 +29,7 @@ class _NewMessageState extends State<NewMessage> {
       return;
     }
 
-    // clear message and unfocus text-field
+    // clear message and un focus text-field
     FocusScope.of(context).unfocus();
     _messageController.clear();
 
@@ -39,7 +38,6 @@ class _NewMessageState extends State<NewMessage> {
         .collection('users')
         .doc(sentUser.uid)
         .get();
-    // original user
     await ChatService().sendChat(
         receiverData: widget.receiverData,
         message: message,

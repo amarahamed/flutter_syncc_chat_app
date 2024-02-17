@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:syncc_chat_app/screens/past_chat_screen.dart';
 import 'package:syncc_chat_app/screens/auth_screen.dart';
@@ -6,11 +7,28 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:syncc_chat_app/shared/loading_screen.dart';
 import 'firebase_options.dart';
 
+/*
+* TO:DOs
+*
+* Delete unused packages
+* Clean code
+*
+* Update notification UI
+* Handle notification in all 3 stages of an app - terminated, background, foreground
+* Send images as messages
+*
+* Make UI nicer
+* Make text fields onSubmit()
+* Profile picture quality increase 
+* */
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  await FirebaseMessaging.instance.requestPermission();
 
   runApp(const App());
 }

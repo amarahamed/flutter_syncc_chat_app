@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:syncc_chat_app/models/receiver.dart';
@@ -23,11 +21,10 @@ class _PeopleLookUpScreenState extends State<PeopleLookUpScreen> {
   bool showUserNotFoundText = false;
 
   void _submitInput() async {
-    // await _searchPeople(_searchController.text);
-
     setState(() {
       loading = true;
     });
+
     ReceiverData? fetchData =
         await Helper().searchPeople(_searchController.text);
     setState(() {
@@ -73,33 +70,6 @@ class _PeopleLookUpScreenState extends State<PeopleLookUpScreen> {
               onSubmitted: (value) {
                 _submitInput();
               },
-              onChanged: (value) async {
-                // // await _searchPeople(_searchController.text);
-                // var currentUser = await FirebaseFirestore.instance
-                //     .collection('users')
-                //     .doc(FirebaseAuth.instance.currentUser!.uid)
-                //     .get();
-                //
-                // if (_searchController.text == currentUser.data()!['username']) {
-                //   return;
-                // }
-                //
-                // setState(() {
-                //   loading = true;
-                // });
-                // ReceiverData? fetchData =
-                //     await Helper().searchPeople(_searchController.text);
-                // setState(() {
-                //   loading = false;
-                //   if (fetchData == null) {
-                //     showUserNotFoundText = true;
-                //     receiverData = null;
-                //   } else {
-                //     showUserNotFoundText = false;
-                //     receiverData = fetchData;
-                //   }
-                // });
-              },
               decoration: primaryInputDecoration.copyWith(
                 labelText: 'Search people',
                 suffixIcon: IconButton(
@@ -126,6 +96,7 @@ class _PeopleLookUpScreenState extends State<PeopleLookUpScreen> {
                   splashColor: Colors.grey[850],
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       CircleAvatar(
                         radius: 38,
