@@ -16,31 +16,56 @@ class PastChatsScreen extends StatefulWidget {
 
 class _PastChatsScreenState extends State<PastChatsScreen> {
   final _currentUserId = FirebaseAuth.instance.currentUser!.uid;
+  //
+  // void setupPushNotification() async {
+  //   final fcm = FirebaseMessaging.instance;
+  //
+  //   NotificationSettings permission = await fcm.requestPermission(
+  //     alert: true,
+  //     announcement: false,
+  //     badge: true,
+  //     carPlay: false,
+  //     criticalAlert: false,
+  //     provisional: false,
+  //     sound: true,
+  //   );
+  //
+  //   if (permission.authorizationStatus == AuthorizationStatus.authorized) {
+  //     await handleNotification();
+  //   } else {
+  //     print("permission denied or not determined");
+  //   }
+  // }
 
-  void setupPushNotification() async {
-    final fcm = FirebaseMessaging.instance;
-
-    NotificationSettings permission = await fcm.requestPermission(
-      alert: true,
-      announcement: false,
-      badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
-      sound: true,
-    );
-
-    if (permission.authorizationStatus == AuthorizationStatus.authorized) {
-      print(await fcm.getToken());
-    } else {
-      print("permission denied or not determined");
-    }
-  }
+  // Future<void> handleNotification() async {
+  //   // terminated state
+  //   RemoteMessage? initialMessage =
+  //       await FirebaseMessaging.instance.getInitialMessage();
+  //   // if notification has data navigate to chat screen
+  //   if (initialMessage != null) {
+  //     _handleNotificationScreen;
+  //   }
+  //
+  //   // background state
+  //   FirebaseMessaging.onMessageOpenedApp.listen((event) {
+  //     final fcmSnack = SnackBar(
+  //       content: Text(event.notification?.body ?? 'Hello'),
+  //     );
+  //     ScaffoldMessenger.of(context).showSnackBar(fcmSnack);
+  //     // _handleNotificationScreen;
+  //   });
+  // }
+  //
+  // void _handleNotificationScreen() {
+  //   Navigator.push(context, MaterialPageRoute(builder: (context) {
+  //     return const PastChatsScreen();
+  //   }));
+  // }
 
   @override
   void initState() {
     super.initState();
-    setupPushNotification();
+    // setupPushNotification();
   }
 
   Future<List> userChatData(List<QueryDocumentSnapshot> chats) async {
