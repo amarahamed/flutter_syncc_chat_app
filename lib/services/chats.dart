@@ -59,4 +59,16 @@ class ChatService {
         .doc(sentUser)
         .set({});
   }
+
+  Future<dynamic> getLastChat(
+      String currentUserId, String receiverUserId) async {
+    var snapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUserId)
+        .collection('chats')
+        .doc(receiverUserId)
+        .collection('messages')
+        .get();
+    return snapshot.docs.last.data();
+  }
 }

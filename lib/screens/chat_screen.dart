@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:syncc_chat_app/models/receiver.dart';
 import 'package:syncc_chat_app/screens/new_message.dart';
-import 'package:syncc_chat_app/services/authentication.dart';
 import 'package:syncc_chat_app/shared/message_bubble.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -45,13 +44,6 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-              onPressed: () async {
-                await Authentication().signOutUser(context);
-              },
-              icon: const Icon(Icons.exit_to_app_rounded)),
-        ],
       ),
       body: DecoratedBox(
         decoration: const BoxDecoration(
@@ -116,6 +108,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                     ? true
                                     : false,
                                 time: time,
+                                id: messages[index].id,
+                                userId: currentUser!,
+                                receiverId: widget.receiverData.uid,
                               );
                             },
                             itemCount: messages.length,

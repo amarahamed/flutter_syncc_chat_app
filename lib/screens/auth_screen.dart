@@ -111,6 +111,7 @@ class _AuthScreenState extends State<AuthScreen> {
           "username": Helper().stringCapitalize(_validatedUsername),
           "pfp_url": pictureUrl,
           "fcm_token": fcmToken,
+          "fcm_token_reg_time": DateTime.now(),
         });
 
         // add username to the username list collection

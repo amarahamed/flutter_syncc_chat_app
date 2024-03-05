@@ -33,6 +33,13 @@ class _NewMessageState extends State<NewMessage> {
     FocusScope.of(context).unfocus();
     _messageController.clear();
 
+    // get the fcm token for the receiver making sure fcm not updated
+    var userData = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(widget.receiverData.uid)
+        .get();
+    widget.receiverData.fcmToken = userData.data()!['fcm_token'];
+
     final sentUser = FirebaseAuth.instance.currentUser!;
     final senderData = await FirebaseFirestore.instance
         .collection('users')
@@ -56,7 +63,7 @@ class _NewMessageState extends State<NewMessage> {
           autocorrect: true,
           enableSuggestions: true,
           onSubmitted: (value) {
-            _submitMessage;
+            _submitMessage();
           },
           decoration: primaryInputDecoration.copyWith(
             labelText: 'Type message',

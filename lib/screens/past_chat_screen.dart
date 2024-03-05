@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -16,56 +18,110 @@ class PastChatsScreen extends StatefulWidget {
 
 class _PastChatsScreenState extends State<PastChatsScreen> {
   final _currentUserId = FirebaseAuth.instance.currentUser!.uid;
-  //
-  // void setupPushNotification() async {
-  //   final fcm = FirebaseMessaging.instance;
-  //
-  //   NotificationSettings permission = await fcm.requestPermission(
-  //     alert: true,
-  //     announcement: false,
-  //     badge: true,
-  //     carPlay: false,
-  //     criticalAlert: false,
-  //     provisional: false,
-  //     sound: true,
-  //   );
-  //
-  //   if (permission.authorizationStatus == AuthorizationStatus.authorized) {
-  //     await handleNotification();
-  //   } else {
-  //     print("permission denied or not determined");
-  //   }
-  // }
+  final _controller = StreamController();
+  var fcmSnack;
+  Stream get stream => _controller.stream;
 
-  // Future<void> handleNotification() async {
-  //   // terminated state
-  //   RemoteMessage? initialMessage =
-  //       await FirebaseMessaging.instance.getInitialMessage();
-  //   // if notification has data navigate to chat screen
-  //   if (initialMessage != null) {
-  //     _handleNotificationScreen;
-  //   }
-  //
-  //   // background state
-  //   FirebaseMessaging.onMessageOpenedApp.listen((event) {
-  //     final fcmSnack = SnackBar(
-  //       content: Text(event.notification?.body ?? 'Hello'),
-  //     );
-  //     ScaffoldMessenger.of(context).showSnackBar(fcmSnack);
-  //     // _handleNotificationScreen;
-  //   });
-  // }
-  //
-  // void _handleNotificationScreen() {
-  //   Navigator.push(context, MaterialPageRoute(builder: (context) {
-  //     return const PastChatsScreen();
-  //   }));
-  // }
+  /* Notification Setup - ONLY for logged users */
+  void setupPushNotification() async {
+    final fcm = FirebaseMessaging.instance;
+    fcm.onTokenRefresh.listen((fcmToken) async {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(_currentUserId)
+          .update({
+        "fcm_token": fcmToken,
+        "fcm_token_reg_time": DateTime.now(),
+      });
+    });
+
+    NotificationSettings permission = await fcm.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+
+    if (permission.authorizationStatus == AuthorizationStatus.authorized) {
+      await handleNotification();
+    }
+  }
+
+  Future<void> handleNotification() async {
+    // terminated state
+    RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
+
+    if (initialMessage != null) {
+      setSnackBar(initialMessage);
+    }
+
+    // background state
+    FirebaseMessaging.onMessageOpenedApp.listen((event) {
+      if (event.notification != null) {
+        setSnackBar(event);
+      }
+    });
+  }
+
+  void setSnackBar(RemoteMessage message) {
+    setState(() {
+      fcmSnack = SnackBar(
+        elevation: 1.0,
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        behavior: SnackBarBehavior.floating,
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        content: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Messaged from ${message.data['SenderUsername']}',
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            ),
+            ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(
+                  Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return ChatScreen(
+                      receiverData: ReceiverData(
+                          uid: message.data['SentBy'],
+                          pfpUrl: message.data['senderPfpUrl'],
+                          username: message.data['SenderUsername']));
+                }));
+              },
+              child: Text(
+                'Open',
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.secondary),
+              ),
+            ),
+          ],
+        ),
+      );
+
+      _controller.sink.add(fcmSnack);
+    });
+  }
 
   @override
   void initState() {
     super.initState();
-    // setupPushNotification();
+    setupPushNotification();
+
+    // listen to the stream - if notification received from background or terminated state of the app returns a snack bar to open chat message
+    stream.listen((event) {
+      if (fcmSnack != null) {
+        WidgetsFlutterBinding.ensureInitialized();
+        ScaffoldMessenger.of(context).showSnackBar(fcmSnack);
+      }
+    });
   }
 
   Future<List> userChatData(List<QueryDocumentSnapshot> chats) async {

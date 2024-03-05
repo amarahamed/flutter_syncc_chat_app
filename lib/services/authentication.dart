@@ -10,7 +10,7 @@ class Authentication {
     // unsubscribe from topic when sign out
     FirebaseMessaging.instance
         .unsubscribeFromTopic(_firebaseAuth.currentUser!.uid);
-    assignFCMToken(null);
+    assignFCMToken('');
 
     var signOut = await _firebaseAuth.signOut();
 

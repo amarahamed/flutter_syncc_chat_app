@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:syncc_chat_app/models/receiver.dart';
 import 'package:syncc_chat_app/screens/chat_screen.dart';
 import 'package:syncc_chat_app/services/authentication.dart';
+import 'package:syncc_chat_app/services/chats.dart';
 import 'package:syncc_chat_app/services/helper.dart';
 import 'package:syncc_chat_app/shared/shared_widgets.dart';
 
@@ -15,6 +17,7 @@ class PeopleLookUpScreen extends StatefulWidget {
 
 class _PeopleLookUpScreenState extends State<PeopleLookUpScreen> {
   final _searchController = TextEditingController();
+  dynamic foundUserLastChat;
 
   ReceiverData? receiverData;
   bool loading = false;
@@ -27,6 +30,13 @@ class _PeopleLookUpScreenState extends State<PeopleLookUpScreen> {
 
     ReceiverData? fetchData =
         await Helper().searchPeople(_searchController.text);
+    dynamic lastChat;
+
+    if (fetchData != null) {
+      lastChat = await ChatService()
+          .getLastChat(FirebaseAuth.instance.currentUser!.uid, fetchData.uid);
+    }
+
     setState(() {
       loading = false;
       if (fetchData == null) {
@@ -35,6 +45,7 @@ class _PeopleLookUpScreenState extends State<PeopleLookUpScreen> {
       } else {
         showUserNotFoundText = false;
         receiverData = fetchData;
+        foundUserLastChat = lastChat;
       }
     });
   }
@@ -123,25 +134,16 @@ class _PeopleLookUpScreenState extends State<PeopleLookUpScreen> {
                             constraints: const BoxConstraints(
                               maxWidth: 200,
                             ),
-                            child: const Text(
-                              'Hey bro!',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w400,
-                                letterSpacing: 1,
-                                fontSize: 12,
-                              ),
+                            child: Text(
+                              foundUserLastChat['text'],
+                              style: smallTextStyle,
                               overflow: TextOverflow.ellipsis,
                               maxLines: 2,
                             ),
                           ),
-                          const Text(
+                          Text(
                             '10:06 PM',
-                            style: TextStyle(
-                              height: 2,
-                              fontWeight: FontWeight.w400,
-                              letterSpacing: 1,
-                              fontSize: 12,
-                            ),
+                            style: smallTextStyle.copyWith(height: 2),
                           )
                         ],
                       ),
