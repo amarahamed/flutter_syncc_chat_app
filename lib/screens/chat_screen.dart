@@ -81,7 +81,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           if (!snapshots.hasData ||
                               snapshots.data!.docs.isEmpty) {
                             return const Center(
-                              child: Text('No messages found!!'),
+                              child: Text('Start a chat '),
                             );
                           }
 

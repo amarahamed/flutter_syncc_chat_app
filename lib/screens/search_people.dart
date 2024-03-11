@@ -35,6 +35,7 @@ class _PeopleLookUpScreenState extends State<PeopleLookUpScreen> {
     if (fetchData != null) {
       lastChat = await ChatService()
           .getLastChat(FirebaseAuth.instance.currentUser!.uid, fetchData.uid);
+      print("Last chat: $lastChat");
     }
 
     setState(() {
@@ -45,7 +46,9 @@ class _PeopleLookUpScreenState extends State<PeopleLookUpScreen> {
       } else {
         showUserNotFoundText = false;
         receiverData = fetchData;
-        foundUserLastChat = lastChat;
+        if (lastChat != null) {
+          foundUserLastChat = lastChat;
+        }
       }
     });
   }
@@ -130,17 +133,18 @@ class _PeopleLookUpScreenState extends State<PeopleLookUpScreen> {
                           const SizedBox(
                             height: 3,
                           ),
-                          Container(
-                            constraints: const BoxConstraints(
-                              maxWidth: 200,
+                          if (foundUserLastChat != null)
+                            Container(
+                              constraints: const BoxConstraints(
+                                maxWidth: 200,
+                              ),
+                              child: Text(
+                                foundUserLastChat['text'],
+                                style: smallTextStyle,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
+                              ),
                             ),
-                            child: Text(
-                              foundUserLastChat['text'],
-                              style: smallTextStyle,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
-                            ),
-                          ),
                           Text(
                             '10:06 PM',
                             style: smallTextStyle.copyWith(height: 2),

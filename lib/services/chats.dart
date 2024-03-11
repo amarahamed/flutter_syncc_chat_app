@@ -62,6 +62,7 @@ class ChatService {
 
   Future<dynamic> getLastChat(
       String currentUserId, String receiverUserId) async {
+    print("-------> Last start search started");
     var snapshot = await FirebaseFirestore.instance
         .collection('users')
         .doc(currentUserId)
@@ -69,6 +70,14 @@ class ChatService {
         .doc(receiverUserId)
         .collection('messages')
         .get();
+
+    print("-------> Last start search ended $snapshot");
+
+    if (snapshot.docs.isEmpty) {
+      print("-------> EMPTY!");
+      return null;
+    }
+
     return snapshot.docs.last.data();
   }
 }
